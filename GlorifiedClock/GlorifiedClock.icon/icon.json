@@ -1,0 +1,290 @@
+{
+  "color-space-for-untagged-svg-colors" : "display-p3",
+  "fill-specializations" : [
+    {
+      "value" : "system-light"
+    },
+    {
+      "appearance" : "dark",
+      "value" : "system-dark"
+    }
+  ],
+  "groups" : [
+    {
+      "blend-mode-specializations" : [
+        {
+          "value" : "normal"
+        },
+        {
+          "appearance" : "dark",
+          "value" : "overlay"
+        }
+      ],
+      "blur-material" : 0.55,
+      "hidden" : false,
+      "layers" : [
+        {
+          "blend-mode-specializations" : [
+            {
+              "appearance" : "dark",
+              "value" : "normal"
+            }
+          ],
+          "fill-specializations" : [
+            {
+              "appearance" : "dark",
+              "value" : {
+                "automatic-gradient" : "extended-srgb:0.33333,0.74510,0.94118,1.00000",
+                "orientation" : {
+                  "start" : {
+                    "x" : 0.4334224611600044,
+                    "y" : 0.4176015632097111
+                  },
+                  "stop" : {
+                    "x" : 0,
+                    "y" : 0
+                  }
+                }
+              }
+            }
+          ],
+          "glass" : true,
+          "hidden" : false,
+          "image-name" : "clock_hands.svg",
+          "name" : "clock_hands",
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              2.1305073673183017,
+              0.7238241342397771
+            ]
+          }
+        }
+      ],
+      "lighting-specializations" : [
+        {
+          "value" : "combined"
+        },
+        {
+          "appearance" : "dark",
+          "value" : "individual"
+        }
+      ],
+      "opacity" : 1,
+      "position" : {
+        "scale" : 2.08,
+        "translation-in-points" : [
+          -62,
+          -17
+        ]
+      },
+      "shadow-specializations" : [
+        {
+          "value" : {
+            "kind" : "layer-color",
+            "opacity" : 0.39
+          }
+        },
+        {
+          "appearance" : "dark",
+          "value" : {
+            "kind" : "layer-color",
+            "opacity" : 0.16
+          }
+        }
+      ],
+      "specular-specializations" : [
+        {
+          "value" : true
+        },
+        {
+          "appearance" : "dark",
+          "value" : true
+        }
+      ],
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.43
+      }
+    },
+    {
+      "blend-mode-specializations" : [
+        {
+          "value" : "normal"
+        },
+        {
+          "appearance" : "dark",
+          "value" : "overlay"
+        }
+      ],
+      "blur-material" : 0.55,
+      "hidden" : false,
+      "layers" : [
+        {
+          "hidden" : false,
+          "image-name" : "center_pivot.svg",
+          "name" : "center_pivot"
+        }
+      ],
+      "lighting" : "combined",
+      "opacity" : 1,
+      "position" : {
+        "scale" : 2.08,
+        "translation-in-points" : [
+          -62,
+          -17
+        ]
+      },
+      "shadow" : {
+        "kind" : "layer-color",
+        "opacity" : 0.12
+      },
+      "specular" : true,
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.43
+      }
+    },
+    {
+      "blend-mode-specializations" : [
+        {
+          "value" : "normal"
+        },
+        {
+          "appearance" : "dark",
+          "value" : "overlay"
+        }
+      ],
+      "blur-material" : 0.55,
+      "hidden" : false,
+      "layers" : [
+        {
+          "hidden" : true,
+          "image-name" : "outer_geometry_arc.svg",
+          "name" : "outer_geometry_arc",
+          "position" : {
+            "scale" : 0.53,
+            "translation-in-points" : [
+              19,
+              -1
+            ]
+          }
+        }
+      ],
+      "lighting" : "combined",
+      "opacity" : 1,
+      "position" : {
+        "scale" : 2.08,
+        "translation-in-points" : [
+          -62,
+          -17
+        ]
+      },
+      "shadow" : {
+        "kind" : "layer-color",
+        "opacity" : 0.12
+      },
+      "specular" : true,
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.43
+      }
+    },
+    {
+      "blend-mode-specializations" : [
+        {
+          "value" : "normal"
+        },
+        {
+          "appearance" : "dark",
+          "value" : "overlay"
+        }
+      ],
+      "blur-material" : 0.55,
+      "hidden" : false,
+      "layers" : [
+        {
+          "blend-mode-specializations" : [
+            {
+              "appearance" : "dark",
+              "value" : "overlay"
+            }
+          ],
+          "fill-specializations" : [
+            {
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "gray:1.00000,1.00000"
+              }
+            }
+          ],
+          "hidden" : false,
+          "image-name" : "inner_clock_ring.svg",
+          "name" : "inner_clock_ring",
+          "opacity-specializations" : [
+            {
+              "appearance" : "dark",
+              "value" : 0.71
+            }
+          ],
+          "position" : {
+            "scale" : 0.98,
+            "translation-in-points" : [
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "hidden" : true,
+          "image-name" : "clock_logo_layers.svg",
+          "name" : "clock_logo_layers",
+          "position" : {
+            "scale" : 0,
+            "translation-in-points" : [
+              -27,
+              -7
+            ]
+          }
+        },
+        {
+          "blend-mode" : "soft-light",
+          "hidden" : true,
+          "image-name" : "ChatGPT Image Dec 11, 2025 at 11_54_20 PM.png",
+          "name" : "ChatGPT Image Dec 11, 2025 at 11_54_20 PM",
+          "position" : {
+            "scale" : 1.37,
+            "translation-in-points" : [
+              0,
+              3
+            ]
+          }
+        }
+      ],
+      "lighting" : "combined",
+      "opacity" : 1,
+      "position" : {
+        "scale" : 2.08,
+        "translation-in-points" : [
+          -62,
+          -17
+        ]
+      },
+      "shadow" : {
+        "kind" : "layer-color",
+        "opacity" : 0.12
+      },
+      "specular" : true,
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.43
+      }
+    }
+  ],
+  "supported-platforms" : {
+    "circles" : [
+      "watchOS"
+    ],
+    "squares" : "shared"
+  }
+}

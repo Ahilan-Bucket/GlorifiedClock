@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="blueGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#73d7ff"/>
+      <stop offset="100%" stop-color="#0a7cff"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Center pivot -->
+  <g id="center-pivot">
+    <circle cx="540" cy="520" r="34" fill="#0c0d0e" opacity="0.75"/>
+    <circle cx="540" cy="520" r="28" fill="url(#blueGrad)"/>
+  </g>
+</svg>

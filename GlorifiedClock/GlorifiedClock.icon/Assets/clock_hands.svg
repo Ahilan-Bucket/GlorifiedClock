@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="blueGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#73d7ff"/>
+      <stop offset="100%" stop-color="#0a7cff"/>
+    </linearGradient>
+
+    <!-- Soft glow for accent hand -->
+    <filter id="blueGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="6" result="b"/>
+      <feColorMatrix in="b" type="matrix"
+        values="0 0 0 0 0.2
+                0 0 0 0 0.7
+                0 0 0 0 1.0
+                0 0 0 0.55 0" result="g"/>
+      <feMerge>
+        <feMergeNode in="g"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Clock hands -->
+  <g id="clock-hands">
+    <!-- black hand (thicker) -->
+    <path d="M 540 520 L 740 690"
+          stroke="#0c0d0e"
+          stroke-width="42"
+          stroke-linecap="round"/>
+
+    <!-- accent hand (thin blue) -->
+    <path d="M 540 520 L 360 380"
+          stroke="url(#blueGrad)"
+          stroke-width="12"
+          stroke-linecap="round"
+          filter="url(#blueGlow)"/>
+  </g>
+</svg>

@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" version="1.1"
+     xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <!-- Soft shadow -->
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="10" result="blur"/>
+      <feOffset dx="0" dy="12" result="off"/>
+      <feColorMatrix in="off" type="matrix"
+        values="0 0 0 0 0
+                0 0 0 0 0
+                0 0 0 0 0
+                0 0 0 0.20 0" result="shadow"/>
+      <feMerge>
+        <feMergeNode in="shadow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Subtle inner shadow for the squircle -->
+    <filter id="innerShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feOffset dx="0" dy="0"/>
+      <feGaussianBlur stdDeviation="8" result="offset-blur"/>
+      <feComposite operator="out" in="SourceGraphic" in2="offset-blur" result="inverse"/>
+      <feColorMatrix in="inverse" type="matrix"
+        values="0 0 0 0 0
+                0 0 0 0 0
+                0 0 0 0 0
+                0 0 0 0.18 0" result="shadow"/>
+      <feComposite operator="in" in="shadow" in2="SourceGraphic" result="inner-shadow"/>
+      <feMerge>
+        <feMergeNode in="inner-shadow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Background gradient -->
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e9e9ea"/>
+      <stop offset="100%" stop-color="#d9d9db"/>
+    </linearGradient>
+
+    <!-- Face gradient -->
+    <linearGradient id="faceGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#f4f4f6"/>
+    </linearGradient>
+
+    <!-- Outer arc gradient -->
+    <linearGradient id="arcGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#777a7e"/>
+      <stop offset="100%" stop-color="#26292c"/>
+    </linearGradient>
+
+    <!-- Accent blue gradient -->
+    <linearGradient id="blueGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#73d7ff"/>
+      <stop offset="100%" stop-color="#0a7cff"/>
+    </linearGradient>
+
+    <!-- Soft glow for accent hand -->
+    <filter id="blueGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="6" result="b"/>
+      <feColorMatrix in="b" type="matrix"
+        values="0 0 0 0 0.2
+                0 0 0 0 0.7
+                0 0 0 0 1.0
+                0 0 0 0.55 0" result="g"/>
+      <feMerge>
+        <feMergeNode in="g"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- LAYER: background -->
+  <g id="layer-background">
+    <rect x="0" y="0" width="1024" height="1024" fill="url(#bgGrad)"/>
+  </g>
+
+  <!-- LAYER: app-squircle -->
+  <g id="layer-squircle" filter="url(#softShadow)">
+    <!-- iOS-like rounded square -->
+    <rect x="72" y="72" width="880" height="880" rx="160" ry="160"
+          fill="url(#faceGrad)" filter="url(#innerShadow)"/>
+    <!-- subtle border -->
+    <rect x="72" y="72" width="880" height="880" rx="160" ry="160"
+          fill="none" stroke="#b7b7bb" stroke-width="10"/>
+  </g>
+
+  <!-- LAYER: outer-arc (subtle sickle-echo, not explicit) -->
+  <g id="layer-outer-arc">
+    <!-- Big C-like arc on left -->
+    <path d="
+      M 360 270
+      A 300 300 0 0 0 260 520
+      A 300 300 0 0 0 360 770
+      " fill="none" stroke="url(#arcGrad)" stroke-width="38" stroke-linecap="round"/>
+    <!-- notch at top (like the reference) -->
+    <path d="M 520 235 L 520 310" stroke="url(#arcGrad)" stroke-width="22" stroke-linecap="round"/>
+    <!-- notch at bottom -->
+    <path d="M 520 714 L 520 789" stroke="url(#arcGrad)" stroke-width="22" stroke-linecap="round"/>
+    <!-- left tick -->
+    <path d="M 240 512 L 320 512" stroke="url(#arcGrad)" stroke-width="22" stroke-linecap="round"/>
+    <!-- right tick -->
+    <path d="M 704 512 L 784 512" stroke="url(#arcGrad)" stroke-width="22" stroke-linecap="round"/>
+  </g>
+
+  <!-- LAYER: inner-ring -->
+  <g id="layer-inner-ring">
+    <circle cx="540" cy="520" r="170" fill="none" stroke="#0c0d0e" stroke-width="18" opacity="0.95"/>
+    <!-- inner soft shadow hint -->
+    <circle cx="540" cy="520" r="170" fill="none" stroke="#000000" stroke-width="26" opacity="0.06"/>
+  </g>
+
+  <!-- LAYER: hands -->
+  <g id="layer-hands">
+    <!-- black hand (thicker) -->
+    <path d="M 540 520 L 740 690" stroke="#0c0d0e" stroke-width="42" stroke-linecap="round"/>
+    <!-- accent hand (thin blue) -->
+    <path d="M 540 520 L 360 380" stroke="url(#blueGrad)" stroke-width="12" stroke-linecap="round"
+          filter="url(#blueGlow)"/>
+  </g>
+
+  <!-- LAYER: center -->
+  <g id="layer-center">
+    <circle cx="540" cy="520" r="34" fill="#0c0d0e" opacity="0.75"/>
+    <circle cx="540" cy="520" r="28" fill="url(#blueGrad)"/>
+  </g>
+
+</svg>
