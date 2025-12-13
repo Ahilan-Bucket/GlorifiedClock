@@ -16,6 +16,15 @@ class TimeViewModel: ObservableObject {
     @Published var showingAddCity: Bool = false
     @Published var currentTime: Date = Date()  // Live clock time
     @Published var selectedDate: Date = Date()  // Date being viewed in grid
+    @Published var events: [TimeEvent] = []
+    
+    // Event creation state
+    @Published var isCreatingEvent: Bool = false
+    @Published var eventStartHour: Int?
+    @Published var eventEndHour: Int?
+    @Published var selectedCity: CityTime?
+    @Published var showingEventEditor: Bool = false
+    @Published var eventBeingEdited: TimeEvent?
     
     private let hapticGenerator = UIImpactFeedbackGenerator(style: .light)
     private var timer: Timer?
@@ -292,6 +301,95 @@ class TimeViewModel: ObservableObject {
             }
             triggerHaptic()
         }
+    }
+    
+    // MARK: - Event Management
+    
+    func startEventCreation(city: CityTime, hour: Int) {
+        selectedCity = city
+        eventStartHour = hour
+        eventEndHour = hour
+        isCreatingEvent = true
+        triggerHaptic()
+    }
+    
+    func updateEventEnd(hour: Int) {
+        guard isCreatingEvent, let start = eventStartHour else { return }
+        // Ensure end is after start
+        eventEndHour = max(start, hour)
+    }
+    
+    func cancelEventCreation() {
+        isCreatingEvent = false
+        eventStartHour = nil
+        eventEndHour = nil
+        selectedCity = nil
+    }
+    
+    func finalizeEventCreation() {
+        guard let city = selectedCity,
+              let startHour = eventStartHour,
+              let endHour = eventEndHour else {
+            cancelEventCreation()
+            return
+        }
+        
+        let startDate = baseDate(for: startHour, in: city)
+        let endDate = baseDate(for: endHour + 1, in: city)
+        
+        let newEvent = TimeEvent(
+            title: "New Event",
+            startDate: startDate,
+            endDate: endDate,
+            cityTimeZone: city.timeZone
+        )
+        
+        eventBeingEdited = newEvent
+        showingEventEditor = true
+        
+        // Reset creation state
+        isCreatingEvent = false
+        eventStartHour = nil
+        eventEndHour = nil
+        selectedCity = nil
+        
+        triggerHaptic()
+    }
+    
+    func saveEvent(_ event: TimeEvent) {
+        if let index = events.firstIndex(where: { $0.id == event.id }) {
+            events[index] = event
+        } else {
+            events.append(event)
+        }
+    }
+    
+    func deleteEvent(_ event: TimeEvent) {
+        events.removeAll { $0.id == event.id }
+    }
+    
+    func eventsForHour(_ hour: Int, in city: CityTime) -> [TimeEvent] {
+        let hourStart = baseDate(for: hour, in: city)
+        let hourEnd = baseDate(for: hour + 1, in: city)
+        
+        return events.filter { event in
+            event.cityTimeZone == city.timeZone &&
+            event.startDate < hourEnd &&
+            event.endDate > hourStart
+        }
+    }
+    
+    func exportEventsToICS() -> String {
+        return events.toICSFile()
+    }
+    
+    func isHourInEventSelection(hour: Int) -> Bool {
+        guard isCreatingEvent,
+              let start = eventStartHour,
+              let end = eventEndHour else {
+            return false
+        }
+        return hour >= min(start, end) && hour <= max(start, end)
     }
 }
 

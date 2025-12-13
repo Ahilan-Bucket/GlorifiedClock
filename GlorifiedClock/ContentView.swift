@@ -22,6 +22,11 @@ struct ContentView: View {
             .sheet(isPresented: $viewModel.showingAddCity) {
                 AddCityView(viewModel: viewModel)
             }
+            .sheet(isPresented: $viewModel.showingEventEditor) {
+                if let event = viewModel.eventBeingEdited {
+                    EventEditorView(viewModel: viewModel, event: event)
+                }
+            }
         }
     }
     
@@ -126,6 +131,42 @@ struct ContentView: View {
                 .disabled(viewModel.isViewingToday())
                 
                 Spacer()
+                
+                // Export Events Button
+                if !viewModel.events.isEmpty {
+                    Menu {
+                        Button {
+                            exportToICS()
+                        } label: {
+                            Label("Export to Calendar (.ics)", systemImage: "calendar.badge.plus")
+                        }
+                        
+                        Button {
+                            shareICS()
+                        } label: {
+                            Label("Share Events", systemImage: "square.and.arrow.up")
+                        }
+                    } label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: "calendar.badge.checkmark")
+                                .font(.system(size: 14))
+                            Text("\(viewModel.events.count)")
+                                .font(.system(size: 13, weight: .semibold, design: .rounded))
+                        }
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 8)
+                        .background(
+                            LinearGradient(
+                                colors: [.purple, .purple.opacity(0.8)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                        .shadow(color: .purple.opacity(0.3), radius: 4, x: 0, y: 2)
+                    }
+                }
             }
         }
         .padding(.horizontal, 20)
@@ -141,6 +182,35 @@ struct ContentView: View {
                 endPoint: .bottom
             )
         )
+    }
+    
+    // MARK: - Export Functions
+    
+    private func exportToICS() {
+        let icsContent = viewModel.exportEventsToICS()
+        let fileName = "events_\(Date().timeIntervalSince1970).ics"
+        
+        if let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+            let fileURL = documentsPath.appendingPathComponent(fileName)
+            
+            do {
+                try icsContent.write(to: fileURL, atomically: true, encoding: .utf8)
+                
+                // Present activity view controller to save/share the file
+                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                   let window = windowScene.windows.first,
+                   let rootViewController = window.rootViewController {
+                    let activityVC = UIActivityViewController(activityItems: [fileURL], applicationActivities: nil)
+                    rootViewController.present(activityVC, animated: true)
+                }
+            } catch {
+                print("Error saving ICS file: \(error)")
+            }
+        }
+    }
+    
+    private func shareICS() {
+        exportToICS()
     }
 }
 

@@ -11,16 +11,8 @@ struct UnifiedTimelineGrid: View {
     @ObservedObject var viewModel: TimeViewModel
     @StateObject private var scrollCoordinator = ScrollSyncCoordinator()
     
-    @State private var scrollOffset: CGFloat = 0
-    @State private var hasTriggeredTop = false
-    @State private var hasTriggeredBottom = false
-    
     private let columnWidth: CGFloat = 90
     private let homeColumnWidth: CGFloat = 110
-    private let pullThreshold: CGFloat = 80  // How far to pull before triggering
-    
-    // Approximate height of content: 24 hours * ~48pt per cell
-    private let contentHeight: CGFloat = 1200
     
     var body: some View {
         VStack(spacing: 0) {
@@ -216,116 +208,101 @@ struct UnifiedTimelineGrid: View {
     }
     
     private var timeGrid: some View {
-        ScrollView(.vertical, showsIndicators: true) {
-            VStack(spacing: 0) {
-                // TOP PULL ZONE
-                VStack(spacing: 8) {
-                    Image(systemName: "chevron.up.circle.fill")
-                        .font(.system(size: 24))
-                        .foregroundStyle(.secondary)
-                        .opacity(scrollOffset > 40 ? 1 : 0.3)
-                    Text("Pull for Previous Day")
-                        .font(.system(size: 12, weight: .medium, design: .rounded))
-                        .foregroundStyle(.secondary)
+        VStack(spacing: 0) {
+            // Navigation buttons at top
+            HStack {
+                Button {
+                    viewModel.goToPreviousDay()
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "chevron.left.circle.fill")
+                            .font(.system(size: 16))
+                        Text("Previous Day")
+                            .font(.system(size: 13, weight: .semibold, design: .rounded))
+                    }
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+                    .background(
+                        LinearGradient(
+                            colors: [.orange, .orange.opacity(0.8)],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
-                .frame(height: 100)
-                .frame(maxWidth: .infinity)
                 
-                // MAIN CONTENT with scroll tracking
-                VStack(spacing: 0) {
-                    HStack(alignment: .top, spacing: 12) {
-                        // Home city column
-                        if let home = viewModel.homeCity {
-                            VStack(spacing: 0) {
-                                ForEach(viewModel.hours, id: \.self) { hour in
-                                    homeTimeCell(home: home, hour: hour)
-                                }
+                Spacer()
+                
+                Button {
+                    viewModel.goToNextDay()
+                } label: {
+                    HStack(spacing: 6) {
+                        Text("Next Day")
+                            .font(.system(size: 13, weight: .semibold, design: .rounded))
+                        Image(systemName: "chevron.right.circle.fill")
+                            .font(.system(size: 16))
+                    }
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+                    .background(
+                        LinearGradient(
+                            colors: [.green, .green.opacity(0.8)],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(Color(UIColor.systemBackground))
+            
+            Divider()
+            
+            // Scrollable timeline
+            ScrollView(.vertical, showsIndicators: true) {
+                HStack(alignment: .top, spacing: 12) {
+                    // Home city column
+                    if let home = viewModel.homeCity {
+                        VStack(spacing: 0) {
+                            ForEach(viewModel.hours, id: \.self) { hour in
+                                homeTimeCell(home: home, hour: hour)
                             }
-                            .padding(.leading, 16)
                         }
-                        
-                        // Other cities columns (scrollable)
-                        SyncedScrollView(id: "grid", coordinator: scrollCoordinator) {
-                            HStack(spacing: 12) {
-                                ForEach(Array(viewModel.cities.dropFirst())) { city in
-                                    VStack(spacing: 0) {
-                                        ForEach(viewModel.hours, id: \.self) { hour in
-                                            cityTimeCell(city: city, hour: hour)
-                                        }
+                        .padding(.leading, 16)
+                    }
+                    
+                    // Other cities columns (scrollable)
+                    SyncedScrollView(id: "grid", coordinator: scrollCoordinator) {
+                        HStack(spacing: 12) {
+                            ForEach(Array(viewModel.cities.dropFirst())) { city in
+                                VStack(spacing: 0) {
+                                    ForEach(viewModel.hours, id: \.self) { hour in
+                                        cityTimeCell(city: city, hour: hour)
                                     }
                                 }
-                                
-                                Color.clear.frame(width: columnWidth)
                             }
-                            .padding(.trailing, 16)
+                            
+                            Color.clear.frame(width: columnWidth)
                         }
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.trailing, 16)
                     }
-                    .padding(.top, 8)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                .background(
-                    GeometryReader { geo in
-                        Color.clear.preference(
-                            key: ScrollOffsetPreferenceKey.self,
-                            value: geo.frame(in: .named("scrollSpace")).minY
-                        )
-                    }
-                )
-                
-                // BOTTOM PULL ZONE
-                VStack(spacing: 8) {
-                    Text("Pull for Next Day")
-                        .font(.system(size: 12, weight: .medium, design: .rounded))
-                        .foregroundStyle(.secondary)
-                    Image(systemName: "chevron.down.circle.fill")
-                        .font(.system(size: 24))
-                        .foregroundStyle(.secondary)
-                        .opacity(scrollOffset < -contentHeight - 40 ? 1 : 0.3)
-                }
-                .frame(height: 100)
-                .frame(maxWidth: .infinity)
+                .padding(.top, 8)
             }
-        }
-        .coordinateSpace(name: "scrollSpace")
-        .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
-            scrollOffset = value
-            handleScrollPosition(value)
-        }
-        .onChange(of: viewModel.selectedDate) { oldValue, newValue in
-            // Reset triggers when date changes externally
-            hasTriggeredTop = false
-            hasTriggeredBottom = false
-        }
-    }
-    
-    private func handleScrollPosition(_ offset: CGFloat) {
-        // PULL DOWN (scrolled past top) - Previous Day
-        if offset > pullThreshold {
-            if !hasTriggeredTop {
-                hasTriggeredTop = true
-                viewModel.goToPreviousDay()
-            }
-        } else if offset < pullThreshold - 20 {
-            // Reset when user scrolls away from threshold
-            hasTriggeredTop = false
-        }
-        
-        // PULL UP (scrolled past bottom) - Next Day
-        // When at bottom, offset becomes very negative
-        if offset < -contentHeight - pullThreshold {
-            if !hasTriggeredBottom {
-                hasTriggeredBottom = true
-                viewModel.goToNextDay()
-            }
-        } else if offset > -contentHeight - pullThreshold + 20 {
-            // Reset when user scrolls away from threshold
-            hasTriggeredBottom = false
         }
     }
     
     private func homeTimeCell(home: CityTime, hour: Int) -> some View {
         let base = viewModel.baseDate(for: hour)
-        let isNow = viewModel.isViewingToday() && hour == viewModel.currentHourInHome()  // Only show when viewing today
+        let isNow = viewModel.isViewingToday() && hour == viewModel.currentHourInHome()
+        let isInSelection = viewModel.isHourInEventSelection(hour: hour)
+        let hasEvents = !viewModel.eventsForHour(hour, in: home).isEmpty
         
         return ZStack {
             if viewModel.showRipple && isNow {
@@ -356,6 +333,12 @@ struct UnifiedTimelineGrid: View {
                         .shadow(color: .red.opacity(0.6), radius: 4)
                 }
                 
+                if hasEvents {
+                    Circle()
+                        .fill(Color.purple)
+                        .frame(width: 6, height: 6)
+                }
+                
                 Text(viewModel.formattedTime(base, for: home))
                     .font(.system(size: 19,
                                   weight: isNow ? .bold : .semibold,
@@ -365,7 +348,13 @@ struct UnifiedTimelineGrid: View {
             .background(
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
                     .fill(
-                        isNow
+                        isInSelection
+                        ? LinearGradient(
+                            colors: [Color.purple.opacity(0.3), Color.blue.opacity(0.2)],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                        : isNow
                         ? LinearGradient(
                             colors: [Color.blue.opacity(0.15), Color.cyan.opacity(0.08)],
                             startPoint: .leading,
@@ -376,6 +365,13 @@ struct UnifiedTimelineGrid: View {
                             startPoint: .leading,
                             endPoint: .trailing
                         )
+                    )
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .strokeBorder(
+                        isInSelection ? Color.purple.opacity(0.6) : Color.clear,
+                        lineWidth: 2
                     )
             )
             .padding(.vertical, 2)
@@ -390,6 +386,27 @@ struct UnifiedTimelineGrid: View {
                         .offset(x: 4, y: 4)
                 }
             }
+            .gesture(
+                LongPressGesture(minimumDuration: 0.5)
+                    .onEnded { _ in
+                        viewModel.startEventCreation(city: home, hour: hour)
+                    }
+                    .simultaneously(with: DragGesture(minimumDistance: 0)
+                        .onChanged { value in
+                            if viewModel.isCreatingEvent {
+                                // Calculate which hour we're dragging over
+                                let draggedHour = hour + Int(value.translation.height / 48)
+                                let clampedHour = max(0, min(23, draggedHour))
+                                viewModel.updateEventEnd(hour: clampedHour)
+                            }
+                        }
+                        .onEnded { _ in
+                            if viewModel.isCreatingEvent {
+                                viewModel.finalizeEventCreation()
+                            }
+                        }
+                    )
+            )
         }
     }
     
@@ -421,38 +438,71 @@ struct UnifiedTimelineGrid: View {
     
     private func cityTimeCell(city: CityTime, hour: Int) -> some View {
         let base = viewModel.baseDate(for: hour)
-        let isNowRow = viewModel.isViewingToday() && hour == viewModel.currentHourInHome()  // Only show when viewing today
+        let isNowRow = viewModel.isViewingToday() && hour == viewModel.currentHourInHome()
+        let isInSelection = viewModel.isCreatingEvent &&
+                           viewModel.selectedCity?.id == city.id &&
+                           viewModel.isHourInEventSelection(hour: hour)
+        let hasEvents = !viewModel.eventsForHour(hour, in: city).isEmpty
         
-        return Text(viewModel.formattedTime(base, for: city))
-            .font(.system(size: 17,
-                          weight: isNowRow ? .semibold : .medium,
-                          design: .rounded))
-            .frame(width: columnWidth, height: 44)
-            .background(
-                RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .fill(cellBackground(for: city, hour: hour, isNowRow: isNowRow))
-            )
-            .padding(.vertical, 2)
-            .overlay(alignment: .topLeading) {
-                if viewModel.isMidnightBoundary(hour, for: city) {
-                    Text(viewModel.dateStringAtHour(hour, for: city))
-                        .font(.system(size: 9, weight: .semibold, design: .rounded))
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(Capsule().fill(Color.purple))
-                        .offset(x: 4, y: 4)
-                }
+        return HStack(spacing: 4) {
+            if hasEvents {
+                Circle()
+                    .fill(Color.purple)
+                    .frame(width: 5, height: 5)
             }
-    }
-}
-
-// MARK: - Scroll Offset Preference Key
-
-struct ScrollOffsetPreferenceKey: PreferenceKey {
-    static var defaultValue: CGFloat = 0
-    
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
+            
+            Text(viewModel.formattedTime(base, for: city))
+                .font(.system(size: 17,
+                              weight: isNowRow ? .semibold : .medium,
+                              design: .rounded))
+        }
+        .frame(width: columnWidth, height: 44)
+        .background(
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(
+                    isInSelection
+                    ? Color.purple.opacity(0.25)
+                    : cellBackground(for: city, hour: hour, isNowRow: isNowRow)
+                )
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .strokeBorder(
+                    isInSelection ? Color.purple.opacity(0.6) : Color.clear,
+                    lineWidth: 2
+                )
+        )
+        .padding(.vertical, 2)
+        .overlay(alignment: .topLeading) {
+            if viewModel.isMidnightBoundary(hour, for: city) {
+                Text(viewModel.dateStringAtHour(hour, for: city))
+                    .font(.system(size: 9, weight: .semibold, design: .rounded))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Capsule().fill(Color.purple))
+                    .offset(x: 4, y: 4)
+            }
+        }
+        .gesture(
+            LongPressGesture(minimumDuration: 0.5)
+                .onEnded { _ in
+                    viewModel.startEventCreation(city: city, hour: hour)
+                }
+                .simultaneously(with: DragGesture(minimumDistance: 0)
+                    .onChanged { value in
+                        if viewModel.isCreatingEvent && viewModel.selectedCity?.id == city.id {
+                            let draggedHour = hour + Int(value.translation.height / 48)
+                            let clampedHour = max(0, min(23, draggedHour))
+                            viewModel.updateEventEnd(hour: clampedHour)
+                        }
+                    }
+                    .onEnded { _ in
+                        if viewModel.isCreatingEvent && viewModel.selectedCity?.id == city.id {
+                            viewModel.finalizeEventCreation()
+                        }
+                    }
+                )
+        )
     }
 }
